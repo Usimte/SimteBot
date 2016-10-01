@@ -7,7 +7,8 @@ En principio se desea que el Bot:
 
 
    	  -Listando por medio de un mensaje los títulos y una breve descripción de cada una de las tareas (máximo 10 palabras) y los responsables de las mismas. Esta función estará habilitada para que funcione en el grupo.
-
+	  
+	-El creador de la tarea sera el responsable ante el bot de dicha tarea
 
    2.Que permita gestionar las tareas y los grupos de trabajo asociados a ellas
 
@@ -19,6 +20,10 @@ En principio se desea que el Bot:
 
 
 	 -Permitir unirse a grupos de tareas ya existentes, así como retirarse de los mismos(Se busca que esto se realice individualmente, con mensajes directos)
+	 
+	 -Permitira a un responsable delegar (reasignar) dicha tarea a otro que este colaborando como auxiliar en esta tarea
 
 
    3.Llevar un control del lugar y la fecha de las reuniones así como de eventos del grupo.
+   
+   
