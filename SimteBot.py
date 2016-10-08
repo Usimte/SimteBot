@@ -6,6 +6,14 @@ class Tarea:
         """Las tareas que va a realizar el grupo"""
         group=[]
         def __init__(self,title,shortAbout,about,coordinator,p):
+                self.title=title
+                if len(shortAbout.split())<11:
+                        self.shortAbout=shortAbout
+                else:
+                        raise ValueError("Invalid length shortAbout", shortAbout)
+                self.about=about
+                self.coordinator=coordinator
+                self.p=float(p)
                 
 
 if len(sys.argv)<2:
