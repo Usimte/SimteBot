@@ -8,7 +8,7 @@ Una tarea debe tener según lo anterior:
     #Grupo de trabajo:List Lista de los diferentes usuarios auxiliares en esta tarea.
     ------------Métodos--------------
     +init(String,String,String,String,float) Crear tareas
-    +edit(String,float)			     Editar avance de tareas
+    +edit(String,String,float)			     Editar avance de tareas
     +add(String):Boolean		     Unirse al grupo de trabajo
     -delegate():Boolean			     delegar coordinación a otro miembro del grupo
     +showShort():String			     Mostrar resumen de la tarea
