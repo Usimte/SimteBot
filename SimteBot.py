@@ -22,6 +22,21 @@ class Tarea:
         def add(self,user):
                 if not user in self.group:
                         self.group.append(user)
+                        return True
+                else:
+                        return False
+        def remove(self,user):
+                if not user==self.cordinator and user in self.group:
+                        self.group.remove(user)
+                        return True
+                else:
+                        return False
+        def delegate(self,user,aux):
+                if user == self.coordinator:
+                        self.coordinator=aux
+                        return True
+                else:
+                        return False
         def show(self):
                 return "Titulo:"+self.title+"\nDescripción corta:"+self.shortAbout+"\nDescripción: "+self.about+"\nCoordinador: "+self.coordinator+"\nGrupo: "+str(self.group)+"\nAvance "+str(self.p)+"%"
         def showShort(self):

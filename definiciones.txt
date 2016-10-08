@@ -10,6 +10,7 @@ Una tarea debe tener según lo anterior:
     +init(String,String,String,String,float) Crear tareas
     +edit(String,String,float)			     Editar avance de tareas
     +add(String):Boolean		     Unirse al grupo de trabajo
+    +remove(String):Boolean
     -delegate():Boolean			     delegar coordinación a otro miembro del grupo
     +showShort():String			     Mostrar resumen de la tarea
     +show():String			     Mostrar toda la información de la tarea
