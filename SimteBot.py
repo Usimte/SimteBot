@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 import sys
 import telepot
+import time
+from pprint import pprint
 class Tarea:       
         """Las tareas que va a realizar el grupo"""
         group=[]
@@ -42,11 +44,18 @@ class Tarea:
         def showShort(self):
                 return self.title+"\t"+str(self.p)+"% \n"+self.shortAbout+"\n"+self.coordinator
                 
-
+def handle(msg):
+        chatId= msg['chat']['id']
+        username= msg['chat']['username']
+        name=msg['text']
+        bot.sendMessage(chatId,'@'+name[1:])
+        print msg['text']
 if len(sys.argv)<2:
 	print "Error correct method: python SimteBot.py <'Token'>"
 else:
 	bot=telepot.Bot(sys.argv[1])
 	print bot.getMe()
-	response=bot.getUpdates()
-	print response
+	bot.message_loop(handle) #Para que el Bot este pendiente de los mensajes que le envian en tiempo real.
+        print ('Listening ...')
+        while 1:    #Para que el programa se quede ejecutando perpetuamente.
+                time.sleep(10)
