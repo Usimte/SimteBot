@@ -43,13 +43,31 @@ class Tarea:
                 return "Titulo:"+self.title+"\nDescripción corta:"+self.shortAbout+"\nDescripción: "+self.about+"\nCoordinador: "+self.coordinator+"\nGrupo: "+str(self.group)+"\nAvance "+str(self.p)+"%"
         def showShort(self):
                 return self.title+"\t"+str(self.p)+"% \n"+self.shortAbout+"\n"+self.coordinator
-                
-def handle(msg):
+
+def privateChat(msg):
         chatId= msg['chat']['id']
         username= msg['chat']['username']
         name=msg['text']
-        bot.sendMessage(chatId,'@'+name[1:])
+        bot.sendMessage(chatId,'@'+username[1:]+" Esto es un chat privado")
+        print msg['chat']
+        print msg['from']
         print msg['text']
+
+def groupChat(msg):
+        chatId= msg['chat']['id']
+        title= msg['chat']['title']
+        name=msg['text']
+        bot.sendMessage(chatId,title+" Esto es un mensaje publico")
+        print msg['chat']
+        print msg['from']
+        print msg['text']
+def handle(msg):
+        tchat=msg['chat']['type']
+        if tchat=='private':
+                privateChat(msg)
+        else:
+                groupChat(msg)
+        
 if len(sys.argv)<2:
 	print "Error correct method: python SimteBot.py <'Token'>"
 else:
