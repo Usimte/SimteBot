@@ -1,9 +1,11 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
-import telepot
 import time
-from pprint import pprint
+import logging
+from telegram import ReplyKeyboardMarkup
+from telegram.ext import (Updater, CommandHandler,MessageHandler,Filters, RegexHandler, ConversationHandler)
+
 class Tarea:       
         """Las tareas que va a realizar el grupo"""
         group=[]
@@ -44,36 +46,25 @@ class Tarea:
         def showShort(self):
                 return self.title+"\t"+str(self.p)+"% \n"+self.shortAbout+"\n"+self.coordinator
 
-def privateChat(msg):
-        chatId= msg['chat']['id']
-        username= msg['chat']['username']
-        name=msg['text']
-        bot.sendMessage(chatId,'@'+username[1:]+" Esto es un chat privado")
-        print msg['chat']
-        print msg['from']
-        print msg['text']
+# EndClass
 
-def groupChat(msg):
-        chatId= msg['chat']['id']
-        title= msg['chat']['title']
-        name=msg['text']
-        bot.sendMessage(chatId,title+" Esto es un mensaje publico")
-        print msg['chat']
-        print msg['from']
-        print msg['text']
-def handle(msg):
-        tchat=msg['chat']['type']
-        if tchat=='private':
-                privateChat(msg)
-        else:
-                groupChat(msg)
-        
+logging.basicConfig(filname='SimteLog.log',format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',level=logging.INFO)
+
+logger= logging.getLogger(__name__)
+CHOOSING, TYPING_REPLY, TYPING_CHOICE = range(3)
+
+reply_keyboardg=[['ver tareas']]
+reply_keyboardp=[['Agregar tarea','Modificar tarea'],['Unirse','Retirarse','Delegar']]
+markupg=ReplyKeyboardMarkup(reply_keyboardg, one_time_keyboard=True)
+markupp=ReplyKeyboardMarkup(reply_keyboardp, one_time_keyboard=True)
+def main(token):
+        updater=Updater(token)
+        dp=updater.dispatcher
+        conv_handler=ConversationHandler(
+                entry_points=[CommandHandler('start',start)],
+                states={
+                        CHOOSING:
 if len(sys.argv)<2:
-	print "Error correct method: python SimteBot.py <'Token'>"
+        print "Error correct method: python SimteBot.py 'Token'"
 else:
-	bot=telepot.Bot(sys.argv[1])
-	print bot.getMe()
-	bot.message_loop(handle) #Para que el Bot este pendiente de los mensajes que le envian en tiempo real.
-        print ('Listening ...')
-        while 1:    #Para que el programa se quede ejecutando perpetuamente.
-                time.sleep(10)
+        main(sys.argv[1])
