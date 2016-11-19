@@ -18,3 +18,4 @@ Una tarea debe tener según lo anterior:
     
 La API que se esta implementando es la de la página https://github.com/python-telegram-bot/python-telegram-bot
 
+se crea un ConversationHandler el cual dentro de sus estados tendra definido otros ConversationHandler para recopilar la información.
