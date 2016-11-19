@@ -52,18 +52,58 @@ logging.basicConfig(filname='SimteLog.log',format='%(asctime)s - %(name)s - %(le
 
 logger= logging.getLogger(__name__)
 CHOOSING, TYPING_REPLY, TYPING_CHOICE = range(3)
-
-reply_keyboardg=[['ver tareas']]
-reply_keyboardp=[['Agregar tarea','Modificar tarea'],['Unirse','Retirarse','Delegar']]
+Tareas=[]
+reply_keyboardg=[['ver tareas'],
+                 ['salir']]
+reply_keyboardp=[['Agregar tarea','Modificar tarea'],
+                 ['Unirse','Retirarse','Delegar'],
+                 ['salir']]
 markupg=ReplyKeyboardMarkup(reply_keyboardg, one_time_keyboard=True)
 markupp=ReplyKeyboardMarkup(reply_keyboardp, one_time_keyboard=True)
+def start(bot, update):
+        teclado=markupg
+        if(update['message']['chat']['type']=='private'):
+                teclado=markupp
+        update.message.reply_text(
+                "Hola, soy SimteBot espero poderte ayudar, selecciona alguna de las opciones que aparecen a continuación",
+                reply_markup=teclado)
+        return CHOOSING
+
+def listar():
+        pass
+
+def addWork():
+        pass
+
+def salir():
+        pass
+
+def error(bot, update,error):
+        logger.warn('Update "%s" causo el error "%s"'(update,error))
+        
 def main(token):
         updater=Updater(token)
         dp=updater.dispatcher
         conv_handler=ConversationHandler(
                 entry_points=[CommandHandler('start',start)],
                 states={
-                        CHOOSING:
+                        CHOOSING:[RegexHandler('^ver tareas$',
+                                               listar,
+                                               pass_user_data=True),
+                                  RegexHandler('^Agregar tarea$',
+                                               addWork,
+                                               pass_user_data=True),
+                        ],
+                        },
+                fallbacks=[RegexHandler('^salir$',
+                                        salir,
+                                        pass_user_data=True)]
+                )
+        dp.add_handler(conv_handler)
+        dp.add_error_handler(error)
+        updater.start_polling()
+        updater.idle()
+        
 if len(sys.argv)<2:
         print "Error correct method: python SimteBot.py 'Token'"
 else:
