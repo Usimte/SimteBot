@@ -69,14 +69,23 @@ def start(bot, update):
                 reply_markup=teclado)
         return CHOOSING
 
-def listar():
+def listar(bot,update,user_data):
         pass
 
-def addWork():
+def addWork(bot,update,user_data):
         pass
-
-def salir():
+def modWork(bot,update,user_data):
         pass
+def addPerson(bot,update,user_data):
+        pass
+def byePerson(bot,update,user_data):
+        pass
+def passCoor(bot,update,user_data):
+        pass
+def salir(bot,update,user_data):
+        print str(user_data)
+        user_data.clear()
+        return ConversationHandler.END
 
 def error(bot, update,error):
         logger.warn('Update "%s" causo el error "%s"'(update,error))
@@ -85,7 +94,7 @@ def main(token):
         updater=Updater(token)
         dp=updater.dispatcher
         conv_handler=ConversationHandler(
-                entry_points=[CommandHandler('start',start)],
+                entry_points=[CommandHandler('start'+sys.argv[2],start)],
                 states={
                         CHOOSING:[RegexHandler('^ver tareas$',
                                                listar,
@@ -93,6 +102,18 @@ def main(token):
                                   RegexHandler('^Agregar tarea$',
                                                addWork,
                                                pass_user_data=True),
+                                  RegexHandler('^Modificar tarea$',
+                                               modWork,
+                                               pass_user_data=True),
+                                  RegexHandler('^Unirse$',
+                                               addPerson,
+                                               pass_user_data=True),
+                                  RegexHandler('^Retirarse$',
+                                               byePerson,
+                                               pass_user_data=True),
+                                  RegexHandler('^Delegar$',
+                                               passCoor,
+                                               pass_user_data=True)
                         ],
                         },
                 fallbacks=[RegexHandler('^salir$',
@@ -104,7 +125,7 @@ def main(token):
         updater.start_polling()
         updater.idle()
         
-if len(sys.argv)<2:
-        print "Error correct method: python SimteBot.py 'Token'"
+if len(sys.argv)<3:
+        print "Error correct method: python SimteBot.py 'Token' 'pass'"
 else:
         main(sys.argv[1])
