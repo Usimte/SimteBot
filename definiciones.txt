@@ -16,3 +16,5 @@ Una tarea debe tener según lo anterior:
     +show():String			     Mostrar toda la información de la tarea
     -delate():Boolean			     Eliminar tarea enviar al historial
     
+La API que se esta implementando es la de la página https://github.com/python-telegram-bot/python-telegram-bot
+
