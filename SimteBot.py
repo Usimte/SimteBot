@@ -32,7 +32,7 @@ class Tarea:
                 else:
                         return False
         def remove(self,user):
-                if not user==self.cordinator and user in self.group:
+                if not user==self.coordinator and user in self.group:
                         self.group.remove(user)
                         return True
                 else:
@@ -51,18 +51,18 @@ class Tarea:
         def show(self):
                 return "Titulo:"+self.title+"\nDescripción corta:"+self.shortAbout+"\nDescripción: "+self.about+"\nCoordinador: @"+self.coordinator+"\nGrupo: "+self.showGroup()+"\nAvance "+str(self.p)+" % "
         def showShort(self):
-                return "[ "+self.title+"\t"+str(self.p)+"% \n"+self.shortAbout+"\n @"+self.coordinator+"]\n"
+                return "[ "+self.title+"\t"+str(self.p)+"% \n"+self.shortAbout+"\n @"+self.coordinator+"\n"+self.showGroup()+"]\n"
 
 # EndClass
 
 logging.basicConfig(filname='SimteLog.log',format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',level=logging.INFO)
 
 logger= logging.getLogger(__name__)
-CHOOSING,OPCION,TYPING_REPLY, TYPING_CHOICE, TITLE, DC, DL,COOR,AVAN,DONE= range(10)
+CHOOSING,OPCION,REPLY, CHOICE, TITLE, DC, DL,COOR,AVAN,DONE= range(10)
 TAREAS=[]
 reply_keyboardg=[['ver tareas'],
                  ['salir']]
-reply_keyboardp=[['Agregar tarea','Modificar tarea'],
+reply_keyboardp=[['Agregar tarea','Modificar avance'],
                  ['Unirse','Retirarse','Delegar'],
                  ['salir']]
 ok_keyboard=[['Aceptar','/Cancelar']]
@@ -150,7 +150,7 @@ def obtener(bot,update,user_data):
                 return OPCION
         user_data['Tarea']=TAREAS[int(i)]
         user_data['Index']=int(i)
-        update.message.reply_text("Escriba el nuevo avance que tiene la tarea recuerde que debe ser un numero entero mayor al avance actual y 100",reply_markup=markupc)
+        update.message.reply_text(user_data['msj'],reply_markup=markupc)
         return AVAN
 def modAvan(bot,update,user_data):
         text=update.message.text
@@ -171,17 +171,44 @@ def modDone(bot,update,user_data):
         else:
                 user_data['Tarea'].edit(user_data['usuario'],user_data['avance'],about=text)
         update.message.reply_text("Se modifico la tarea %s"%user_data['Tarea'].show(),reply_markup=markupp)
+        user_data.clear()
         return ConversationHandler.END
 def modWork(bot,update,user_data):
-        update.message.reply_text("Desea modificar una de las tareas escriba el numero de uno de ellas\n %s"%showWorks(),reply_markup=markupc)
+        update.message.reply_text("Desea modificar una de las tareas escriba el número de uno de ellas\n %s"%showWorks(),reply_markup=markupc)
+        user_data['msj']="Escriba el nuevo avance que tiene la tarea recuerde que debe ser un numero entero mayor al avance actual y 100"
         return OPCION
+def verTarea(bot,update,user_data):
+        update.message.reply_text("La tarea a la que se quiere %s es:\n %s \n¿esta usted seguro? "%(user_data['palabra'],user_data['Tarea'].show()),reply_markup=markupo)
+        user_data['usuario']=update.message.from_user.username
+        return DONE
+def addUser(bot,update,user_data):
+        if user_data['Tarea'].add(user_data['usuario']):
+                update.message.reply_text("Se realizo la tarea exitosamente %s"%user_data['Tarea'].show(),reply_markup=markupp)
+        else:
+                update.message.reply_text("Usted ya es parte del equipo",reply_markup=markupp)
+        user_data.clear()
+        return ConversationHandler.END
 def addPerson(bot,update,user_data):
-        pass
+        update.message.reply_text("Desea unirse a alguna de las tareas del grupo, escriba el número correspondiente a alguna de ellas \n %s"%showWorks(), reply_markup=markupc)
+        user_data['msj']="Desea continuar escriba ok de lo contrario cancelar"
+        user_data['palabra']="agregar"
+        return OPCION
+def byeUser(bot,update,user_data):
+        if user_data['Tarea'].remove(user_data['usuario']):
+                update.message.reply_text("Se realizo la tarea exitosamente %s"%user_data['Tarea'].show(),reply_markup=markupp)
+        else:
+                update.message.reply_text("Usted no es parte del equipo o es el coordinador",reply_markup=markupp)
+        user_data.clear()
+        return ConversationHandler.END
 def byePerson(bot,update,user_data):
-        pass
+        update.message.reply_text("Desea retirarse de alguna de las tareas del grupo, escriba el número correspondiente a alguna de ellas \n %s"%showWorks(), reply_markup=markupc)
+        user_data['msj']="Desea continuar escriba ok de lo contrario cancelar"
+        user_data['palabra']="retirar"
+        return OPCION
 def passCoor(bot,update,user_data):
         pass
 def salir(bot,update,user_data):
+        update.message.reply_text("Gracias Adiós",reply_markup=ReplyKeyboardHide())
         print str(user_data)
         user_data.clear()
         return ConversationHandler.END
@@ -212,7 +239,7 @@ def main(token):
                                           fallbacks=[CommandHandler('Cancelar',cancelO,pass_user_data=True)]
                                           ),                                  
                                   ConversationHandler(
-                                          entry_points=[RegexHandler('^Modificar tarea$',
+                                          entry_points=[RegexHandler('^Modificar avance$',
                                                modWork,
                                                pass_user_data=True)],
                                           states={
@@ -222,12 +249,28 @@ def main(token):
                                                   },
                                           fallbacks=[CommandHandler('Cancelar',cancelO,pass_user_data=True)]
                                           ),
-                                  RegexHandler('^Unirse$',
+                                  ConversationHandler(
+                                          entry_points=[RegexHandler('^Unirse$',
                                                addPerson,
-                                               pass_user_data=True),
-                                  RegexHandler('^Retirarse$',
+                                               pass_user_data=True)],
+                                          states={
+                                                  OPCION:[MessageHandler(Filters.text,obtener,pass_user_data=True)],
+                                                  AVAN:[MessageHandler(Filters.text,verTarea,pass_user_data=True)],
+                                                  DONE:[RegexHandler('^Aceptar$',addUser,pass_user_data=True)]
+                                                  },
+                                          fallbacks=[CommandHandler('Cancelar',cancelO,pass_user_data=True)]
+                                          ),
+                                  ConversationHandler(
+                                          entry_points=[RegexHandler('^Retirarse$',
                                                byePerson,
-                                               pass_user_data=True),
+                                               pass_user_data=True)],
+                                          states={
+                                                  OPCION:[MessageHandler(Filters.text,obtener,pass_user_data=True)],
+                                                  AVAN:[MessageHandler(Filters.text,verTarea,pass_user_data=True)],
+                                                  DONE:[RegexHandler('^Aceptar$',byeUser,pass_user_data=True)]
+                                                  },
+                                          fallbacks=[CommandHandler('Cancelar',cancelO,pass_user_data=True)]
+                                          ),
                                   RegexHandler('^Delegar$',
                                                passCoor,
                                                pass_user_data=True)
