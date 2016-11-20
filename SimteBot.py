@@ -70,7 +70,7 @@ cancel_keyboard=[['/Cancelar']]
 term_key=[['Siguiente']]
 markupg=ReplyKeyboardMarkup(reply_keyboardg, one_time_keyboard=True,selective=True)
 markupp=ReplyKeyboardMarkup(reply_keyboardp, one_time_keyboard=True)
-markupo=ReplyKeyboardMarkup(ok_keyboard,one_time_keyboard=True)
+markupo=ReplyKeyboardMarkup(ok_keyboard,resize_keyboard=True,one_time_keyboard=True)
 markupc=ReplyKeyboardMarkup(cancel_keyboard,resize_keyboard=True,one_time_keyboard=True)
 markupt=ReplyKeyboardMarkup(term_key,resize_keyboard=True,one_time_keyboard=True)
 def user_str(user_data):
@@ -150,7 +150,7 @@ def obtener(bot,update,user_data):
                 return OPCION
         user_data['Tarea']=TAREAS[int(i)]
         user_data['Index']=int(i)
-        update.message.reply_text(user_data['msj'],reply_markup=markupc)
+        update.message.reply_text(user_data['msj'],reply_markup=markupo)
         return AVAN
 def modAvan(bot,update,user_data):
         text=update.message.text
@@ -205,8 +205,34 @@ def byePerson(bot,update,user_data):
         user_data['msj']="Desea continuar escriba ok de lo contrario cancelar"
         user_data['palabra']="retirar"
         return OPCION
+def showGroup(bot,update,user_data):
+        mem=user_data['Tarea'].group
+        msj=""
+        for x,y in enumerate(mem):
+              msj=msj+str(x)+" - @"+y+"\n"
+        update.message.reply_text("Seleccione alguno de los miembros del equipo enviando el número correspondiente \n %s"%msj,reply_markup=markupc)
+        user_data['Group']=msj
+        return CHOICE
+def selectU(bot,update,user_data):
+        text=update.message.text
+        if not text.isdigit() or int(text)<0 or int(text)>=len(user_data['Tarea'].group):
+                update.message.reply_text("Seleccione una opción valida /n %s"%user_data['Group'],reply_markup=markupc)
+                return CHOISE
+        user_data['nuevo']=user_data['Tarea'].group[int(text)]
+        update.message.reply_text("Se convertira el usuario @%s en el coordinador de la tarea %s"%(user_data['nuevo'],user_data['Tarea'].title),reply_markup=markupo)
+        return DONE
+        
+def coorUser(bot,update,user_data):
+        if user_data['Tarea'].delegate(update.message.from_user.username,user_data['nuevo']):
+                update.message.reply_text("Se realizo la tarea exitosamente %s"%user_data['Tarea'].show(),reply_markup=markupp)
+        else:
+                update.message.reply_text("Usted no es el coordinador y solo el puede hacer esta operación.",reply_markup=markupp)
+        user_data.clear()
+        return ConversationHandler.END
 def passCoor(bot,update,user_data):
-        pass
+        update.message.reply_text("Desea delegar la coordinación a otra persona,asegurese que la persona haga parte del equipo de trabajo de la tarea y escriba el número correspondiente a la tarea que desea\n %s"%showWorks(),reply_markup=markupc)
+        user_data['msj']="¿Desea continuar?"
+        return OPCION
 def salir(bot,update,user_data):
         update.message.reply_text("Gracias Adiós",reply_markup=ReplyKeyboardHide())
         print str(user_data)
@@ -271,9 +297,18 @@ def main(token):
                                                   },
                                           fallbacks=[CommandHandler('Cancelar',cancelO,pass_user_data=True)]
                                           ),
-                                  RegexHandler('^Delegar$',
+                                  ConversationHandler(
+                                          entry_points=[RegexHandler('^Delegar$',
                                                passCoor,
-                                               pass_user_data=True)
+                                                                     pass_user_data=True)],
+                                          states={
+                                                  OPCION:[MessageHandler(Filters.text,obtener,pass_user_data=True)],
+                                                  AVAN:[RegexHandler('^Aceptar$',showGroup,pass_user_data=True)],
+                                                  CHOICE:[MessageHandler(Filters.text,selectU,pass_user_data=True)],
+                                                  DONE:[RegexHandler('^Aceptar$',coorUser,pass_user_data=True)],
+                                                  },
+                                          fallbacks=[CommandHandler('Cancelar',cancelO,pass_user_data=True)]
+                                          )
                         ],
                         },
                 fallbacks=[RegexHandler('^salir$',
