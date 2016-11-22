@@ -9,7 +9,6 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 class Tarea:       
         """Las tareas que va a realizar el grupo"""
-        group=[]
         def __init__(self,title,shortAbout,about,coordinator,p):
                 self.title=title
                 if len(shortAbout.split())<11:
@@ -18,6 +17,7 @@ class Tarea:
                         raise ValueError("Invalid length shortAbout", shortAbout)
                 self.about=about
                 self.coordinator=coordinator
+                self.group=list()
                 self.group.append(coordinator)
                 self.p=int(p)
         def edit(self,user,p,about=None):
