@@ -1,12 +1,14 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
+import pickle
 import time
 import logging
 from telegram import (ReplyKeyboardMarkup,ReplyKeyboardHide)
 from telegram.ext import (Updater, CommandHandler,MessageHandler,Filters, RegexHandler, ConversationHandler)
 reload(sys)  
 sys.setdefaultencoding('utf8')
+   
 class Tarea:       
         """Las tareas que va a realizar el grupo"""
         def __init__(self,title,shortAbout,about,coordinator,p):
@@ -44,14 +46,14 @@ class Tarea:
                 else:
                         return False
         def showGroup(self):
-                cdn=""
+                cdn="Grupo de trabajo:\n"
                 for x in self.group:
-                       cdn=cdn+"\n\t @"+x
+                       cdn=cdn+"\t @"+x+"\n"
                 return cdn
         def show(self):
-                return "Titulo:"+self.title+"\nDescripción corta:"+self.shortAbout+"\nDescripción: "+self.about+"\nCoordinador: @"+self.coordinator+"\nGrupo: "+self.showGroup()+"\nAvance "+str(self.p)+" % "
+                return "Titulo:\t"+self.title+"\nDescripción corta:\t"+self.shortAbout+"\nDescripción: \n"+self.about+"\ncoordinador:\n @"+self.coordinator+"\n "+self.showGroup()+"\nAvance "+str(self.p)+" % "
         def showShort(self):
-                return "[ "+self.title+"\t"+str(self.p)+"% \n"+self.shortAbout+"\n @"+self.coordinator+"\n"+self.showGroup()+"]\n"
+                return "[ "+self.title+"\t"+str(self.p)+"% @"+self.coordinator+ "\n"+self.shortAbout+"\n"+self.showGroup()+"]\n"
 
 # EndClass
 
@@ -59,7 +61,7 @@ logging.basicConfig(filname='SimteLog.log',format='%(asctime)s - %(name)s - %(le
 
 logger= logging.getLogger(__name__)
 CHOOSING,OPCION,REPLY, CHOICE, TITLE, DC, DL,COOR,AVAN,DONE= range(10)
-TAREAS=[]
+filename=sys.argv[0]+".data"
 reply_keyboardg=[['ver tareas'],
                  ['salir']]
 reply_keyboardp=[['Agregar tarea','Modificar avance'],
@@ -73,6 +75,16 @@ markupp=ReplyKeyboardMarkup(reply_keyboardp, one_time_keyboard=True)
 markupo=ReplyKeyboardMarkup(ok_keyboard,resize_keyboard=True,one_time_keyboard=True)
 markupc=ReplyKeyboardMarkup(cancel_keyboard,resize_keyboard=True,one_time_keyboard=True)
 markupt=ReplyKeyboardMarkup(term_key,resize_keyboard=True,one_time_keyboard=True)
+def saveList(obj):
+        with open(filename,'wb') as output:
+                pickle.dump(obj,output,pickle.HIGHEST_PROTOCOL)
+def unsaveList():
+        try:
+                with open(filename,'rb') as input:
+                        return pickle.load(input)
+        except (IOError, OSError) as e:
+                return list()
+TAREAS=unsaveList()
 def user_str(user_data):
     facts = list()
 
@@ -108,7 +120,7 @@ def addTitle(bot,update,user_data):
 def addDC(bot,update,user_data):
         text=update.message.text
         if len(text.split(' '))>10:
-                update.message.reply_text("Su descripción corta excede el másximo de diez palabras, vuelve a escribirla",reply_markup=markupc)
+                update.message.reply_text("Su descripción corta excede el máximo de diez palabras, vuelve a escribirla",reply_markup=markupc)
                 return DC
         user_data['DescripciónC']=text
         update.message.reply_text("Escribe la descripción de la tarea, intenta ser claro no te excedas del máximo numero de caracteres de Telegram",reply_markup=markupc)
@@ -131,11 +143,12 @@ def addAvan (bot,update,user_data):
 def addCoor(bot,update,user_data):
         tareatmp=Tarea(user_data['Titulo'],user_data['DescripciónC'],user_data['DescripciónL'],user_data['coordinador'],user_data['avance'])
         TAREAS.append(tareatmp)
-        update.message.reply_text("se agrego exitosamente le tarea \n %s \n¿Correcto? "%tareatmp.show(),reply_markup=markupp)
+        saveList(TAREAS)
+        update.message.reply_text("se agrego exitosamente le tarea \n %s \ngracias "%tareatmp.show(),reply_markup=markupp)
         user_data.clear()
         return ConversationHandler.END
 def cancelO(bot,update,user_data):
-        update.message.reply_text("Se cancelo la operción, Adiós",reply_markup=markupp)
+        update.message.reply_text("Se cancelo la operación, Adiós",reply_markup=markupp)
         user_data.clear()
         return ConversationHandler.END
 def showWorks():
@@ -156,12 +169,12 @@ def modAvan(bot,update,user_data):
         text=update.message.text
         act=user_data['Tarea'].p
         if not text.isdigit() or int(text)<act or int(text)>100:
-                update.message.reply_text("Escribe un numero entero entre %s y 100 no agregues espacios."%str(act))
+                update.message.reply_text("Escribe un número entero entre %s y 100 no agregues espacios."%str(act))
                 return AVAN
         user_data['avance']=int(text)
         user=update.message.from_user.username
         user_data['usuario']=user
-        update.message.reply_text("SI NO desea cambiar cambiar completamente la descripción larga de la tarea oprima la opcion Siguiente sino escribala a continuación. La actual es:\n %s"%user_data['Tarea'].about,reply_markup=markupt)
+        update.message.reply_text("SI NO desea cambiar cambiar completamente la descripción larga de la tarea oprima la opción Siguiente sino escríbala a continuación. La actual es:\n %s"%user_data['Tarea'].about,reply_markup=markupt)
         return DONE
 def modDone(bot,update,user_data):
         text=update.message.text
@@ -170,6 +183,7 @@ def modDone(bot,update,user_data):
                 user_data['Tarea'].edit(user_data['usuario'],user_data['avance'])
         else:
                 user_data['Tarea'].edit(user_data['usuario'],user_data['avance'],about=text)
+        saveList(TAREAS)
         update.message.reply_text("Se modifico la tarea %s"%user_data['Tarea'].show(),reply_markup=markupp)
         user_data.clear()
         return ConversationHandler.END
@@ -183,6 +197,7 @@ def verTarea(bot,update,user_data):
         return DONE
 def addUser(bot,update,user_data):
         if user_data['Tarea'].add(user_data['usuario']):
+                saveList(TAREAS)
                 update.message.reply_text("Se realizo la tarea exitosamente %s"%user_data['Tarea'].show(),reply_markup=markupp)
         else:
                 update.message.reply_text("Usted ya es parte del equipo",reply_markup=markupp)
@@ -195,6 +210,7 @@ def addPerson(bot,update,user_data):
         return OPCION
 def byeUser(bot,update,user_data):
         if user_data['Tarea'].remove(user_data['usuario']):
+                saveList(TAREAS)
                 update.message.reply_text("Se realizo la tarea exitosamente %s"%user_data['Tarea'].show(),reply_markup=markupp)
         else:
                 update.message.reply_text("Usted no es parte del equipo o es el coordinador",reply_markup=markupp)
@@ -219,18 +235,19 @@ def selectU(bot,update,user_data):
                 update.message.reply_text("Seleccione una opción valida /n %s"%user_data['Group'],reply_markup=markupc)
                 return CHOISE
         user_data['nuevo']=user_data['Tarea'].group[int(text)]
-        update.message.reply_text("Se convertira el usuario @%s en el coordinador de la tarea %s"%(user_data['nuevo'],user_data['Tarea'].title),reply_markup=markupo)
+        update.message.reply_text("Se convertirá el usuario @%s en el coordinador de la tarea %s"%(user_data['nuevo'],user_data['Tarea'].title),reply_markup=markupo)
         return DONE
         
 def coorUser(bot,update,user_data):
         if user_data['Tarea'].delegate(update.message.from_user.username,user_data['nuevo']):
+                saveList(TAREAS)
                 update.message.reply_text("Se realizo la tarea exitosamente %s"%user_data['Tarea'].show(),reply_markup=markupp)
         else:
                 update.message.reply_text("Usted no es el coordinador y solo el puede hacer esta operación.",reply_markup=markupp)
         user_data.clear()
         return ConversationHandler.END
 def passCoor(bot,update,user_data):
-        update.message.reply_text("Desea delegar la coordinación a otra persona,asegurese que la persona haga parte del equipo de trabajo de la tarea y escriba el número correspondiente a la tarea que desea\n %s"%showWorks(),reply_markup=markupc)
+        update.message.reply_text("Desea delegar la coordinación a otra persona,asegúrese que la persona haga parte del equipo de trabajo de la tarea y escriba el número correspondiente a la tarea que desea\n %s"%showWorks(),reply_markup=markupc)
         user_data['msj']="¿Desea continuar?"
         return OPCION
 def salir(bot,update,user_data):
@@ -324,3 +341,6 @@ if len(sys.argv)<3:
         print "Error correct method: python SimteBot.py 'Token' 'pass'"
 else:
         main(sys.argv[1])
+
+
+        
