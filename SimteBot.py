@@ -8,9 +8,8 @@ import time
 from queue import Queue
 from threading import Thread
 from telegram import Bot
-from telegram.ext import Dispatcher, MessageHandler, Updater
 from telegram import (ReplyKeyboardMarkup, ReplyKeyboardHide)
-from telegram.ext import (Updater, CommandHandler, MessageHandler,
+from telegram.ext import (Dispatcher, Updater, CommandHandler, MessageHandler,
                           Filters, RegexHandler, ConversationHandler)
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -71,7 +70,6 @@ class Tarea:
         return "[ " + self.title + "\t" + str(self.p) + "% @" + self.coordinator + "\n" + self.shortAbout + "\n" + self.showGroup() + "]\n"
 
 # EndClass
-
 
 logging.basicConfig(filname='SimteLog.log',
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -285,8 +283,6 @@ def addPerson(bot, update, user_data):
     update.message.reply_text(
         "Desea unirse a alguna de las tareas del grupo, escriba el número correspondiente a alguna de ellas \n %s" % showWorks(), reply_markup=markupc)
     user_data['msj'] = "Desea continuar escriba ok de lo contrario cancelar"
-    update.message.reply_text(
-        "Usted no es parte del equipo o es el coordinador", reply_markup=markupp)
     user_data['palabra'] = "agregar"
     return OPCION
 
@@ -297,6 +293,8 @@ def byeUser(bot, update, user_data):
         update.message.reply_text("Se realizo la tarea exitosamente %s" % user_data[
                                   'Tarea'].show(), reply_markup=markupp)
     else:
+        update.message.reply_text(
+            "Usted no es parte del equipo o es el coordinador", reply_markup=markupp)
     user_data.clear()
     return ConversationHandler.END
 
@@ -362,19 +360,8 @@ def salir(bot, update, user_data):
 def error(bot, update, error):
     logger.warn('Update "%s" causo el error "%s"'(update, error))
 
-
-TOKEN = 'Your_Token_Here'
-PASS = 'Your_Pass_Here'
-
-
-def example_handler(bot, update):
-    # Remove this handler
-    bot.send_message(
-        update.message.chat_id,
-        text='Hello from openshift'
-    )
-
-# Write your handlers here
+TOKEN = ''
+PASS = ''
 
 
 def setup(webhook_url=None):
