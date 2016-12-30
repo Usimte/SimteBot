@@ -28,6 +28,7 @@ class Tarea:
                         raise ValueError("Invalid length shortAbout",
                                          shortAbout)
                 self.about = about
+
                 self.coordinator = coordinator
                 self.group = list()
                 self.group.append(coordinator)
