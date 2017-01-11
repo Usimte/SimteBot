@@ -10,9 +10,10 @@ python-telegram-bot, se desarrollo en python2.7
 import sys
 import pickle
 import logging
-from telegram import (ReplyKeyboardMarkup, ReplyKeyboardHide)
+from telegram import (ReplyKeyboardMarkup, ReplyKeyboardHide, ParseMode)
 from telegram.ext import (Updater, CommandHandler, MessageHandler,
                           Filters, RegexHandler, ConversationHandler)
+
 # Para evitar problemas con algunos caracteres poco comunes en el servidor
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -79,6 +80,7 @@ class Tarea:
                 text = "[ "+self.title+"\t"+str(self.p)+"% @"
                 text += self.coordinator + "\n" + self.shortAbout + "\n"
                 text += self.showGroup()+"]\n"
+                return text
 
 # EndClass
 
@@ -89,10 +91,11 @@ logging.basicConfig(filname='SimteLog.log',
 
 logger = logging.getLogger(__name__)
 CHOOSING, OPCION, REPLY, CHOICE, TITLE, DC, DL, COOR, AVAN, DONE = range(10)
-filename = sys.argv[0]+".data"
-reply_keyboardg = [['ver tareas'],
+filename = sys.argv[2]+".data"
+reply_keyboardg = [['/verTareas'],
                    ['salir']]
-reply_keyboardp = [['Agregar tarea', 'Modificar avance'],
+reply_keyboardp = [['/verTareas', 'Agregar tarea',
+                    'Modificar avance'],
                    ['Unirse', 'Retirarse', 'Delegar'],
                    ['salir']]
 ok_keyboard = [['Aceptar', '/Cancelar']]
@@ -143,21 +146,25 @@ def start(bot, update):
         if(update['message']['chat']['type'] == 'private'):
                 teclado = markupp
         update.message.reply_text(
-                "Hola, soy SimteBot espero poderte ayudar,"
+                "Hola, soy *SimteBot* espero poderte ayudar,"
                 "selecciona alguna de las opciones que aparecen"
                 " a continuación",
+                parse_mode=ParseMode.MARKDOWN,
                 reply_markup=teclado)
         return CHOOSING
 
 
-def listar(bot, update, user_data):
+def listar(bot, update):
         cdn = ""
+        teclado = markupg
+        if(update['message']['chat']['type'] == 'private'):
+                teclado = markupp
         for t in TAREAS:
                 cdn = cdn+t.showShort()
         bot.sendMessage(chat_id=update.message.chat_id,
                         text="Las tareas del grupo son: \n"+cdn,
-                        reply_markup=ReplyKeyboardHide())
-        return ConversationHandler.END
+                        reply_markup=teclado)
+        return CHOOSING
 
 
 def addWork(bot, update, user_data):
@@ -285,7 +292,7 @@ def modAvan(bot, update, user_data):
 
 def modDone(bot, update, user_data):
         text = update.message.text
-        
+
         if text == 'Siguiente':
                 user_data['Tarea'].edit(user_data['usuario'],
                                         user_data['avance'])
@@ -443,8 +450,8 @@ def main(token):
         conv_handler = ConversationHandler(
                 entry_points=[CommandHandler('start'+sys.argv[2], start)],
                 states={
-                        CHOOSING: [RegexHandler('^ver tareas$',
-                                                listar),
+                        CHOOSING: [CommandHandler('verTareas',
+                                                  listar),
                                    ConversationHandler(
                                            entry_points=[RegexHandler(
                                                    '^Agregar tarea$',
@@ -589,6 +596,6 @@ def main(token):
 
 
 if len(sys.argv) < 3:
-        print "Error correct method: python Simtebot.py 'token' 'pass'"
+        print "Error correct method: python Simtebot.py 'token' 'name'"
 else:
         main(sys.argv[1])
