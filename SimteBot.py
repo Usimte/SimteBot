@@ -63,21 +63,21 @@ class Tarea:
                         return False
 
         def showGroup(self):
-                cdn = "Grupo de trabajo:\n"
+                cdn = "*Grupo de trabajo:*\n"
                 for x in self.group:
                         cdn = cdn + "\t @" + x + "\n"
                 return cdn
 
         def show(self):
-                text = "Titulo:\t"+self.title
-                text += "\nDescripción corta:\t"+self.shortAbout
-                text += "\nDescripción: \n"+self.about
-                text += "\ncoordinador:\n @"+self.coordinator
-                text += "\n "+self.showGroup()+"\nAvance "+str(self.p)+" % "
+                text = "*Titulo:*\t"+self.title
+                text += "\n*Descripción corta:*\t"+self.shortAbout
+                text += "\n*Descripción:* \n"+self.about
+                text += "\n*coordinador:*\n @"+self.coordinator
+                text += "\n"+self.showGroup()+"\n*Avance* "+str(self.p)+" % "
                 return text
 
         def showShort(self):
-                text = "[ "+self.title+"\t"+str(self.p)+"% @"
+                text = "[ *"+self.title+"*\t"+str(self.p)+"% @"
                 text += self.coordinator + "\n" + self.shortAbout + "\n"
                 text += self.showGroup()+"]\n"
                 return text
@@ -159,11 +159,18 @@ def listar(bot, update):
         teclado = markupg
         if(update['message']['chat']['type'] == 'private'):
                 teclado = markupp
-        for t in TAREAS:
-                cdn = cdn+t.showShort()
-        bot.sendMessage(chat_id=update.message.chat_id,
-                        text="Las tareas del grupo son: \n"+cdn,
-                        reply_markup=teclado)
+                for t in TAREAS:
+                        bot.sendMessage(chat_id=update.message.chat_id,
+                                        text=t.show(),
+                                        parse_mode=ParseMode.MARKDOWN,
+                                        reply_markup=teclado)
+        else:
+                for t in TAREAS:
+                        cdn = cdn+t.showShort()
+                bot.sendMessage(chat_id=update.message.chat_id,
+                                text="Las tareas del grupo son:\n"+cdn,
+                                parse_mode=ParseMode.MARKDOWN,
+                                reply_markup=teclado)
         return CHOOSING
 
 
