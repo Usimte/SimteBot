@@ -1,13 +1,14 @@
-#! /usr/bin/python2
+#! /usr/bin/python3
 # -*- coding: utf-8 -*-
 """
 Este es el bot de telegram para la coordinación y
 manejo de las tareas del grupo,se van a utilizar
 como API para la comunicación con Python
-python-telegram-bot, se desarrollo en python2.7
+python-telegram-bot, esta es la versión para Python3
 
  """
 import sys
+# import imp
 import pickle
 import logging
 from telegram import (ReplyKeyboardMarkup, ReplyKeyboardHide, ParseMode)
@@ -15,8 +16,9 @@ from telegram.ext import (Updater, CommandHandler, MessageHandler,
                           Filters, RegexHandler, ConversationHandler)
 
 # Para evitar problemas con algunos caracteres poco comunes en el servidor
-reload(sys)
-sys.setdefaultencoding('utf8')
+# imp.reload(sys)
+# sys.setdefaultencoding('utf8')
+# No funciona en python3
 
 
 class Tarea:
@@ -85,9 +87,9 @@ class Tarea:
 # EndClass
 
 
-logging.basicConfig(filname='SimteLog.log',
+logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
+                    filename='SimteLog.log')
 
 logger = logging.getLogger(__name__)
 CHOOSING, OPCION, REPLY, CHOICE, TITLE, DC, DL, COOR, AVAN, DONE = range(10)
@@ -441,7 +443,7 @@ def passCoor(bot, update, user_data):
 def salir(bot, update, user_data):
         update.message.reply_text("Gracias Adiós",
                                   reply_markup=ReplyKeyboardHide())
-        print str(user_data)
+        print (str(user_data))
         user_data.clear()
         return ConversationHandler.END
 
@@ -603,6 +605,6 @@ def main(token):
 
 
 if len(sys.argv) < 3:
-        print "Error correct method: python Simtebot.py 'token' 'name'"
+        print ("Error correct method: python Simtebot.py 'token' 'name'")
 else:
         main(sys.argv[1])
