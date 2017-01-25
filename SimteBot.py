@@ -16,8 +16,9 @@ from telegram import (ReplyKeyboardMarkup, ReplyKeyboardHide, ParseMode)
 from telegram.ext import (Updater, CommandHandler, MessageHandler,
                           Filters, RegexHandler, ConversationHandler)
 
-TOKEN = "Token"  # Heroku
+TOKEN = "187268667:AAFuXTPWTm02vcZCHqAVxrdaTNfV5mdIG9w"  # Heroku
 PORT = int(os.environ.get('PORT', '5000'))  # Heroku
+CLAVE = "Usimte"
 # Para evitar problemas con algunos caracteres poco comunes en el servidor
 # imp.reload(sys)
 # sys.setdefaultencoding('utf8')
@@ -91,12 +92,11 @@ class Tarea:
 
 
 logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    filename='SimteLog.log')
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 logger = logging.getLogger(__name__)
 CHOOSING, OPCION, REPLY, CHOICE, TITLE, DC, DL, COOR, AVAN, DONE = range(10)
-filename = sys.argv[2]+".data"
+filename = CLAVE+".data"
 reply_keyboardg = [['/verTareas'],
                    ['salir']]
 reply_keyboardp = [['/verTareas', 'Agregar tarea',
@@ -460,7 +460,7 @@ def main():
         updater = Updater(TOKEN)  # Heroku
         dp = updater.dispatcher
         conv_handler = ConversationHandler(
-                entry_points=[CommandHandler('start'+sys.argv[2], start)],
+                entry_points=[CommandHandler('start'+CLAVE, start)],
                 states={
                         CHOOSING: [CommandHandler('verTareas',
                                                   listar),
@@ -606,7 +606,7 @@ def main():
         updater.start_webhook(listen="0.0.0.0",  # Heroku
                               port=PORT,
                               url_path=TOKEN)
-        updater.bot.setWebhook("https://SimteBot.herokuapp.com/" + TOKEN)  # Heroku
+        updater.bot.setWebhook("https://simtebot.herokuapp.com/" + TOKEN)  # Heroku
         updater.idle()
 
 
