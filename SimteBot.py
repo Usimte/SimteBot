@@ -9,12 +9,15 @@ python-telegram-bot, esta es la versión para Python3
  """
 import sys
 # import imp
+import os   # Heroku
 import pickle
 import logging
 from telegram import (ReplyKeyboardMarkup, ReplyKeyboardHide, ParseMode)
 from telegram.ext import (Updater, CommandHandler, MessageHandler,
                           Filters, RegexHandler, ConversationHandler)
 
+TOKEN = "Token"  # Heroku
+PORT = int(os.environ.get('PORT', '5000'))  # Heroku
 # Para evitar problemas con algunos caracteres poco comunes en el servidor
 # imp.reload(sys)
 # sys.setdefaultencoding('utf8')
@@ -453,8 +456,8 @@ def error(bot, update, error):
                     (update, error))
 
 
-def main(token):
-        updater = Updater(token)
+def main():
+        updater = Updater(TOKEN)  # Heroku
         dp = updater.dispatcher
         conv_handler = ConversationHandler(
                 entry_points=[CommandHandler('start'+sys.argv[2], start)],
@@ -600,11 +603,21 @@ def main(token):
                 )
         dp.add_handler(conv_handler)
         dp.add_error_handler(error)
-        updater.start_polling()
+        updater.start_webhook(listen="0.0.0.0",  # Heroku
+                              port=PORT,
+                              url_path=TOKEN)
+        updater.bot.setWebhook("https://SimteBot.herokuapp.com/" + TOKEN)  # Heroku
         updater.idle()
 
 
+if __name__ == '__main__':
+        main()
+
+
+"""
+Local
 if len(sys.argv) < 3:
         print ("Error correct method: python Simtebot.py 'token' 'name'")
 else:
         main(sys.argv[1])
+"""
