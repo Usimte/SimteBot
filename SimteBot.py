@@ -7,7 +7,7 @@ como API para la comunicación con Python
 python-telegram-bot, esta es la versión para Python3
 
  """
-import sys
+# import sys
 # import imp
 import os   # Heroku
 import pickle
@@ -16,9 +16,10 @@ from telegram import (ReplyKeyboardMarkup, ReplyKeyboardHide, ParseMode)
 from telegram.ext import (Updater, CommandHandler, MessageHandler,
                           Filters, RegexHandler, ConversationHandler)
 
-TOKEN = "187268667:AAFuXTPWTm02vcZCHqAVxrdaTNfV5mdIG9w"  # Heroku
-PORT = int(os.environ.get('PORT', '5000'))  # Heroku
-CLAVE = "Usimte"
+token = os.environ.get('TOKEN')  # Heroku
+appname = os.environ.get('APPNAME')  # Heroku
+port = int(os.environ.get('PORT', '5000'))  # Heroku
+clave = os.environ.get('CLAVE')  # Heroku
 # Para evitar problemas con algunos caracteres poco comunes en el servidor
 # imp.reload(sys)
 # sys.setdefaultencoding('utf8')
@@ -96,7 +97,7 @@ logging.basicConfig(level=logging.INFO,
 
 logger = logging.getLogger(__name__)
 CHOOSING, OPCION, REPLY, CHOICE, TITLE, DC, DL, COOR, AVAN, DONE = range(10)
-filename = CLAVE+".data"
+filename = clave+".data"
 reply_keyboardg = [['/verTareas'],
                    ['salir']]
 reply_keyboardp = [['/verTareas', 'Agregar tarea',
@@ -457,10 +458,10 @@ def error(bot, update, error):
 
 
 def main():
-        updater = Updater(TOKEN)  # Heroku
+        updater = Updater(token)  # Heroku
         dp = updater.dispatcher
         conv_handler = ConversationHandler(
-                entry_points=[CommandHandler('start'+CLAVE, start)],
+                entry_points=[CommandHandler('start'+clave, start)],
                 states={
                         CHOOSING: [CommandHandler('verTareas',
                                                   listar),
@@ -604,9 +605,9 @@ def main():
         dp.add_handler(conv_handler)
         dp.add_error_handler(error)
         updater.start_webhook(listen="0.0.0.0",  # Heroku
-                              port=PORT,
-                              url_path=TOKEN)
-        updater.bot.setWebhook("https://simtebot.herokuapp.com/" + TOKEN)  # Heroku
+                              port=port,
+                              url_path=token)
+        updater.bot.setWebhook("https://{}.herokuapp.com/{}".format(appname, token))  # Heroku
         updater.idle()
 
 
