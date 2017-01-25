@@ -1,22 +1,27 @@
-#! /usr/bin/python2
+#! /usr/bin/python3
 # -*- coding: utf-8 -*-
 """
 Este es el bot de telegram para la coordinación y
 manejo de las tareas del grupo,se van a utilizar
 como API para la comunicación con Python
-python-telegram-bot, se desarrollo en python2.7
+python-telegram-bot, esta es la versión para Python3
 
  """
 import sys
+# import imp
+import os   # Heroku
 import pickle
 import logging
 from telegram import (ReplyKeyboardMarkup, ReplyKeyboardHide, ParseMode)
 from telegram.ext import (Updater, CommandHandler, MessageHandler,
                           Filters, RegexHandler, ConversationHandler)
 
+TOKEN = "Token"  # Heroku
+PORT = int(os.environ.get('PORT', '5000'))  # Heroku
 # Para evitar problemas con algunos caracteres poco comunes en el servidor
-reload(sys)
-sys.setdefaultencoding('utf8')
+# imp.reload(sys)
+# sys.setdefaultencoding('utf8')
+# No funciona en python3
 
 
 class Tarea:
@@ -85,9 +90,9 @@ class Tarea:
 # EndClass
 
 
-logging.basicConfig(filname='SimteLog.log',
+logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
+                    filename='SimteLog.log')
 
 logger = logging.getLogger(__name__)
 CHOOSING, OPCION, REPLY, CHOICE, TITLE, DC, DL, COOR, AVAN, DONE = range(10)
@@ -441,7 +446,7 @@ def passCoor(bot, update, user_data):
 def salir(bot, update, user_data):
         update.message.reply_text("Gracias Adiós",
                                   reply_markup=ReplyKeyboardHide())
-        print str(user_data)
+        print (str(user_data))
         user_data.clear()
         return ConversationHandler.END
 
@@ -451,8 +456,8 @@ def error(bot, update, error):
                     (update, error))
 
 
-def main(token):
-        updater = Updater(token)
+def main():
+        updater = Updater(TOKEN)  # Heroku
         dp = updater.dispatcher
         conv_handler = ConversationHandler(
                 entry_points=[CommandHandler('start'+sys.argv[2], start)],
@@ -598,11 +603,21 @@ def main(token):
                 )
         dp.add_handler(conv_handler)
         dp.add_error_handler(error)
-        updater.start_polling()
+        updater.start_webhook(listen="0.0.0.0",  # Heroku
+                              port=PORT,
+                              url_path=TOKEN)
+        updater.bot.setWebhook("https://SimteBot.herokuapp.com/" + TOKEN)  # Heroku
         updater.idle()
 
 
+if __name__ == '__main__':
+        main()
+
+
+"""
+Local
 if len(sys.argv) < 3:
-        print "Error correct method: python Simtebot.py 'token' 'name'"
+        print ("Error correct method: python Simtebot.py 'token' 'name'")
 else:
         main(sys.argv[1])
+"""
