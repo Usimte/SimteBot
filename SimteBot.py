@@ -84,9 +84,9 @@ class Tarea:
                 return text
 
         def showShort(self):
-                text = "[ *"+self.title+"*\t"+str(self.p)+"% @"
-                text += self.coordinator + "\n" + self.shortAbout + "\n"
-                text += self.showGroup()+"]\n"
+                text = "[ <b>"+self.title+"</b>\t"+str(self.p)+"% @"
+                text += self.coordinator + "\n" + self.shortAbout + "\n<b>"
+                text += self.showGroup()+"</b>]\n"
                 return text
 
 # EndClass
@@ -176,7 +176,7 @@ def listar(bot, update):
                 for t in TAREAS:
                         bot.sendMessage(chat_id=update.message.chat_id,
                                         text=t.showShort(),
-                                        parse_mode=ParseMode.MARKDOWN,
+                                        parse_mode=ParseMode.HTML,
                                         reply_markup=teclado)
         return CHOOSING
 
