@@ -161,7 +161,6 @@ def start(bot, update):
 
 
 def listar(bot, update):
-        cdn = ""
         teclado = markupg
         if(update['message']['chat']['type'] == 'private'):
                 teclado = markupp
@@ -171,21 +170,25 @@ def listar(bot, update):
                                         parse_mode=ParseMode.MARKDOWN,
                                         reply_markup=teclado)
         else:
-                for t in TAREAS:
-                        cdn = cdn+t.showShort()
                 bot.sendMessage(chat_id=update.message.chat_id,
-                                text="Las tareas del grupo son:\n"+cdn,
-                                parse_mode=ParseMode.MARKDOWN,
+                                text="Las tareas del grupo son:\n",
                                 reply_markup=teclado)
+                for t in TAREAS:
+                        bot.sendMessage(chat_id=update.message.chat_id,
+                                        text=t.showShort(),
+                                        parse_mode=ParseMode.MARKDOWN,
+                                        reply_markup=teclado)
         return CHOOSING
 
 
 def addWork(bot, update, user_data):
         update.message.reply_text(
                 "Vas a crear una nueva tarea tienes que llenar unos"
-                "datos que vamos a solicitar uno a la vez si te arrepientes"
-                " cancela la operación.\nEscribe el titulo de la tarea,"
+                "datos que vamos a solicitar uno a la vez; si te arrepientes"
+                " cancela la operación.\n*Agrega el titulo*\n"
+                "Escribe el *titulo* de la tarea a continuación,"
                 " intenta ser claro y breve",
+                parse_mode=ParseMode.MARKDOWN,
                 reply_markup=markupc)
         return TITLE
 
@@ -193,8 +196,10 @@ def addWork(bot, update, user_data):
 def addTitle(bot, update, user_data):
         text = update.message.text
         user_data['Titulo'] = text.upper()
-        update.message.reply_text("Escribe una descripción breve de tu"
+        update.message.reply_text("*Agrega tu descripción breve*\n"
+                                  "Escribe una descripción breve de tu"
                                   " tarea máximo 10 palabras",
+                                  parse_mode=ParseMode.MARKDOWN,
                                   reply_markup=markupc)
         return DC
 
@@ -202,15 +207,19 @@ def addTitle(bot, update, user_data):
 def addDC(bot, update, user_data):
         text = update.message.text
         if len(text.split(' ')) > 10:
-                update.message.reply_text("Su descripción corta excede"
-                                          " el máximo de diez palabras,"
+                update.message.reply_text("*ERROR*"
+                                          "Su descripción corta excede"
+                                          " el máximo de *diez* palabras,"
                                           " vuelve a escribirla",
+                                          parse_mode=ParseMode.MARKDOWN,
                                           reply_markup=markupc)
                 return DC
         user_data['DescripciónC'] = text
-        update.message.reply_text("Escribe la descripción de la tarea,"
+        update.message.reply_text("*Agrega la descripción larga*"
+                                  "Escribe la descripción de la tarea,"
                                   " intenta ser claro no te excedas del"
                                   " máximo numero de caracteres de Telegram",
+                                  parse_mode=ParseMode.MARKDOWN,
                                   reply_markup=markupc)
         return DL
 
@@ -218,10 +227,12 @@ def addDC(bot, update, user_data):
 def addDL(bot, update, user_data):
         text = update.message.text
         user_data['DescripciónL'] = text
-        update.message.reply_text("Escribe cuanto llevas de avance en la tarea"
-                                  " usa un número entero entre 0 y 100.Donde"
+        update.message.reply_text("*Agrega el avance*"
+                                  "Escribe cuanto llevas de avance en la tarea "
+                                  "usa un número entero entre *0* y *100*.Donde"
                                   " 100 significa que la tarea esta"
                                   " completada.",
+                                  parse_mode=ParseMode.MARKDOWN,
                                   reply_markup=markupc)
         return AVAN
 
@@ -229,8 +240,10 @@ def addDL(bot, update, user_data):
 def addAvan(bot, update, user_data):
         text = update.message.text
         if not text.isdigit() or int(text) < 0 or int(text) > 100:
-                update.message.reply_text("Escribe un numero entero entre 0"
-                                          " y 100 no agregues espacios.")
+                update.message.reply_text("*ERROR*"
+                                          "Escribe un numero entero entre *0*"
+                                          " y *100* no agregues espacios.",
+                                          parse_mode=ParseMode.MARKDOWN)
                 return AVAN
         user_data['avance'] = text
         user = update.message.from_user.username
