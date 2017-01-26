@@ -1,21 +1,22 @@
 # SimteBot
 <h3> Alojar en heroku.</h3>
-A continuación estan los pasos que hay que seguir para que el bot se ejecute en heroku:
+A continuación están los pasos que hay que seguir para que el bot se ejecute en heroku:
 
 1. Cree una cuenta en https://heroku.com/
-2. Instale [Hetoku Toolbelt](https://devcenter.heroku.com/articles/heroku-cli) y averigue como usarlo en su sistema operativo.
+2. Instale [Heroku Toolbelt](https://devcenter.heroku.com/articles/heroku-cli) y averigüe como usarlo en su sistema operativo.
 3. Clone este repositorio: `git clone https://github.com/Usimte/SimteBot.git` 
 4. Abra el directorio `SimteBot`
-5. Autentiquese con `heroku login` le solicitara su correo y contraseña
-6. Cree la app con `heroku apps:create #coloque el nombre de su app# --buildpack heroku/python` (Solo se permite nombres en letras minusculas y guiones)
-7. Para facilitar las cosas `heroku gir:remote -a #coloque el nombre de su app#`
+5. Autentíquese con `heroku login` le solicitara su correo y contraseña
+6. Cree la app con `heroku apps:create #coloque el nombre de su app# --buildpack heroku/python` (Solo se permite nombres en letras minúsculas y guiones)
+7. Para facilitar las cosas `heroku git:remote -a #coloque el nombre de su app#`
 8. Debe tener su bot creado con el [BotFather](https://t.me/botfather) copie el Token
 9. Ahora ejecute `heroku config:set TOKEN=#coloque su token aquí#`
 10. Ahora `heroku config:set APPNAME=#coloque el nombre de su app#`
 11. Ahora `heroku config:set CLAVE=#coloque la palabra clave aquí#`
 12. Finalmente ejecuta `git add .`, `git commit -m "Mi primer commit"` y `git push heroku master`.
-13. Ve a Telegram y escibele al bot `/startCLAVE` (siendo CLAVE la palabra que pusiste en el paso 11).
+13. Ve a Telegram y escríbele al bot `/startCLAVE` (siendo CLAVE la palabra que pusiste en el paso 11).
 
+*Tenga en cuenta que  TOKEN, APPNAME y CLAVE no deben contener espacios.
 
 <h3> Justificación.</h3>
 Debido a que no encontramos soluciones para gestionar los diferentes proyectos del grupo, vimos en la creación de un bot para Telegram una manera un poco mas efectiva de solucionar los problemas de comunicación y organización que existen en el grupo.
