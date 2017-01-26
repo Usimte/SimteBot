@@ -227,10 +227,10 @@ def addDC(bot, update, user_data):
 def addDL(bot, update, user_data):
         text = update.message.text
         user_data['DescripciónL'] = text
-        update.message.reply_text("*Agrega el avance*"
-                                  "Escribe cuanto llevas de avance en la tarea "
-                                  "usa un número entero entre *0* y *100*.Donde"
-                                  " 100 significa que la tarea esta"
+        update.message.reply_text("*Agrega el avance*\n"
+                                  "Escribe cuanto llevas de avance en la tarea"
+                                  "usa un número entero entre *0* y *100*."
+                                  "Donde 100 significa que la tarea esta"
                                   " completada.",
                                   parse_mode=ParseMode.MARKDOWN,
                                   reply_markup=markupc)
@@ -240,7 +240,7 @@ def addDL(bot, update, user_data):
 def addAvan(bot, update, user_data):
         text = update.message.text
         if not text.isdigit() or int(text) < 0 or int(text) > 100:
-                update.message.reply_text("*ERROR*"
+                update.message.reply_text("*ERROR*\n"
                                           "Escribe un numero entero entre *0*"
                                           " y *100* no agregues espacios.",
                                           parse_mode=ParseMode.MARKDOWN)
@@ -264,6 +264,7 @@ def addCoor(bot, update, user_data):
         saveList(TAREAS)
         update.message.reply_text("se agrego exitosamente le tarea"
                                   " \n %s \ngracias " % tareatmp.show(),
+                                  parse_mode=ParseMode.MARKDOWN,
                                   reply_markup=markupp)
         user_data.clear()
         return ConversationHandler.END
@@ -279,7 +280,7 @@ def cancelO(bot, update, user_data):
 def showWorks():
         nombres = list()
         for x, y in enumerate(TAREAS):
-                nombres.append("%s - %s" % (str(x), y.title))
+                nombres.append("<b>%s</b> - %s" % (str(x), y.title))
         return "\n".join(nombres).join(['\n', '\n'])
 
 
@@ -287,12 +288,15 @@ def obtener(bot, update, user_data):
         i = update.message.text
         if not i.isdigit() or int(i) < 0 or int(i) >= len(TAREAS):
                 update.message.reply_text("Escriba un número adecuado entre"
-                                          " 0 y menor que  %s" % len(TAREAS),
+                                          " *0* y menor que  *%s*" % len(TAREAS),
+                                          parse_mode=ParseMode.MARKDOWN,
                                           reply_markup=markupc)
                 return OPCION
         user_data['Tarea'] = TAREAS[int(i)]
         user_data['Index'] = int(i)
-        update.message.reply_text(user_data['msj'], reply_markup=markupo)
+        update.message.reply_text(user_data['msj'],
+                                  parse_mode=ParseMode.MARKDOWN,
+                                  reply_markup=markupo)
         return AVAN
 
 
@@ -307,11 +311,13 @@ def modAvan(bot, update, user_data):
         user_data['avance'] = int(text)
         user = update.message.from_user.username
         user_data['usuario'] = user
-        update.message.reply_text("SI NO desea cambiar cambiar completamente"
-                                  " la descripción larga de la tarea oprima la"
-                                  " opción Siguiente sino escríbala a"
-                                  " continuación. La actual es:\n %s"
+        update.message.reply_text("SI desea cambiar cambiar completamente"
+                                  " la descripción larga escríbala a continuación"
+                                  " de lo contrario presione la "
+                                  " opción Siguiente.\n"
+                                  " La descripción actual es:\n %s"
                                   % user_data['Tarea'].about,
+                                  parse_mode=ParseMode.MARKDOWN,
                                   reply_markup=markupt)
         return DONE
 
@@ -328,6 +334,7 @@ def modDone(bot, update, user_data):
         saveList(TAREAS)
         update.message.reply_text("Se modifico la tarea %s"
                                   % user_data['Tarea'].show(),
+                                  parse_mode=ParseMode.MARKDOWN,
                                   reply_markup=markupp)
         user_data.clear()
         return ConversationHandler.END
@@ -337,18 +344,20 @@ def modWork(bot, update, user_data):
         update.message.reply_text("Desea modificar una de las tareas"
                                   " escriba el número de uno de ellas\n %s"
                                   % showWorks(),
+                                  parse_mode=ParseMode.HTML,
                                   reply_markup=markupc)
         user_data['msj'] = "Escriba el nuevo avance que tiene la"\
                            " tarea recuerde que debe ser un numero entero" \
-                           " mayor al avance actual y 100"
+                           " mayor al avance actual y *100*"
         return OPCION
 
 
 def verTarea(bot, update, user_data):
-        update.message.reply_text("La tarea a la que se quiere %s es:\n"
+        update.message.reply_text("La tarea a la que se quiere *%s* es:\n"
                                   " %s \n¿esta usted seguro? "
                                   % (user_data['palabra'],
                                      user_data['Tarea'].show()),
+                                  parse_mode=ParseMode.MARKDOWN,
                                   reply_markup=markupo)
         user_data['usuario'] = update.message.from_user.username
         return DONE
@@ -359,6 +368,7 @@ def addUser(bot, update, user_data):
                 saveList(TAREAS)
                 update.message.reply_text("Se realizo la tarea exitosamente %s"
                                           % user_data['Tarea'].show(),
+                                          parse_mode=ParseMode.MARKDOWN,
                                           reply_markup=markupp)
         else:
                 update.message.reply_text("Usted ya es parte del equipo",
@@ -371,9 +381,10 @@ def addPerson(bot, update, user_data):
         update.message.reply_text("Desea unirse a alguna de las tareas del"
                                   " grupo, escriba el número correspondiente"
                                   " a alguna de ellas \n %s" % showWorks(),
+                                  parse_mode=ParseMode.HTML,
                                   reply_markup=markupc)
-        user_data['msj'] = "Desea continuar escriba ok de"\
-                           " lo contrario cancelar"
+        user_data['msj'] = "Desea continuar escriba Aceptar"\
+                           " lo contrario /Cancelar"
         user_data['palabra'] = "agregar"
         return OPCION
 
@@ -383,6 +394,7 @@ def byeUser(bot, update, user_data):
                 saveList(TAREAS)
                 update.message.reply_text("Se realizo la tarea exitosamente %s"
                                           % user_data['Tarea'].show(),
+                                          parse_mode=ParseMode.MARKDOWN,
                                           reply_markup=markupp)
         else:
                 update.message.reply_text("Usted no es parte del equipo o es"
@@ -396,8 +408,10 @@ def byePerson(bot, update, user_data):
         update.message.reply_text("Desea retirarse de alguna de las tareas"
                                   " del grupo, escriba el número correspondiente"
                                   " a alguna de ellas \n %s" % showWorks(),
+                                  parse_mode=ParseMode.HTML,
                                   reply_markup=markupc)
-        user_data['msj'] = "Desea continuar escriba ok de lo contrario cancelar"
+        user_data['msj'] = "Desea continuar escriba Aceptar"\
+                           "de lo contrario /Cancelar"
         user_data['palabra'] = "retirar"
         return OPCION
 
@@ -406,10 +420,11 @@ def showGroup(bot, update, user_data):
         mem = user_data['Tarea'].group
         msj = ""
         for x, y in enumerate(mem):
-                msj = msj+str(x)+" - @"+y+"\n"
+                msj = msj+'<b>'+str(x)+'</b>'+" - @"+y+"\n"
         update.message.reply_text("Seleccione alguno de los miembros"
                                   " del equipo enviando el número"
                                   " correspondiente \n %s" % msj,
+                                  parse_mode=ParseMode.HTML,
                                   reply_markup=markupc)
         user_data['Group'] = msj
         return CHOICE
@@ -421,6 +436,7 @@ def selectU(bot, update, user_data):
            int(text) >= len(user_data['Tarea'].group):
                 update.message.reply_text("Seleccione una opción valida /n"
                                           " %s" % user_data['Group'],
+                                          parse_mode=ParseMode.HTML,
                                           reply_markup=markupc)
                 return CHOICE
         user_data['nuevo'] = user_data['Tarea'].group[int(text)]
@@ -437,10 +453,11 @@ def coorUser(bot, update, user_data):
                 saveList(TAREAS)
                 update.message.reply_text("Se realizo la tarea exitosamente %s"
                                           % user_data['Tarea'].show(),
+                                          parse_mode=ParseMode.MARKDOWN,
                                           reply_markup=markupp)
         else:
                 update.message.reply_text("Usted no es el coordinador y solo"
-                                          " el puede hacer esta operación.",
+                                          " él puede hacer esta operación.",
                                           reply_markup=markupp)
         user_data.clear()
         return ConversationHandler.END
@@ -452,6 +469,7 @@ def passCoor(bot, update, user_data):
                                   " parte del equipo de trabajo de la tarea y"
                                   " escriba el número correspondiente a la tarea"
                                   " que desea\n %s" % showWorks(),
+                                  parse_mode=ParseMode.HTML,
                                   reply_markup=markupc)
         user_data['msj'] = "¿Desea continuar?"
         return OPCION
