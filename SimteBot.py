@@ -164,19 +164,29 @@ def listar(bot, update):
         teclado = markupg
         if(update['message']['chat']['type'] == 'private'):
                 teclado = markupp
-                for t in TAREAS:
+                if len(TAREAS) > 0:
+                        for t in TAREAS:
+                                bot.sendMessage(chat_id=update.message.chat_id,
+                                                text=t.show(),
+                                                parse_mode=ParseMode.MARKDOWN,
+                                                reply_markup=teclado)
+                else:
                         bot.sendMessage(chat_id=update.message.chat_id,
-                                        text=t.show(),
-                                        parse_mode=ParseMode.MARKDOWN,
+                                        text="No hay tareas almacenadas",
                                         reply_markup=teclado)
         else:
-                bot.sendMessage(chat_id=update.message.chat_id,
-                                text="Las tareas del grupo son:\n",
-                                reply_markup=teclado)
-                for t in TAREAS:
+                if len(TAREAS) > 0:
                         bot.sendMessage(chat_id=update.message.chat_id,
-                                        text=t.showShort(),
-                                        parse_mode=ParseMode.HTML,
+                                        text="Las tareas del grupo son:\n",
+                                        reply_markup=teclado)
+                        for t in TAREAS:
+                                bot.sendMessage(chat_id=update.message.chat_id,
+                                                text=t.showShort(),
+                                                parse_mode=ParseMode.HTML,
+                                                reply_markup=teclado)
+                else:
+                        bot.sendMessage(chat_id=update.message.chat_id,
+                                        text="No hay tareas almacenadas.",
                                         reply_markup=teclado)
         return CHOOSING
 
